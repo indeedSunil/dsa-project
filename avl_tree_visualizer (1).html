@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AVL Tree Visualizer</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: #333;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      header {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+      }
+
+      h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .subtitle {
+        font-size: 1.1em;
+        opacity: 0.9;
+        margin-bottom: 10px;
+      }
+
+      .project-info {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+      }
+
+      .project-info p {
+        margin: 3px 0;
+        font-size: 0.95em;
+      }
+
+      .controls {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        margin-bottom: 30px;
+      }
+
+      .control-group {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+      }
+
+      input[type="number"] {
+        padding: 12px 20px;
+        border: 2px solid #667eea;
+        border-radius: 8px;
+        font-size: 16px;
+        width: 150px;
+        transition: all 0.3s;
+      }
+
+      input[type="number"]:focus {
+        outline: none;
+        border-color: #764ba2;
+        box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
+      }
+
+      button {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        color: white;
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn-insert {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .btn-delete {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      }
+
+      .btn-clear {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      }
+
+      .btn-random {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+      }
+
+      button:not(:disabled):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      .info-panel {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .info-box {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.9) 0%,
+          rgba(255, 255, 255, 0.7) 100%
+        );
+        padding: 15px 25px;
+        border-radius: 10px;
+        text-align: center;
+        min-width: 120px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .info-label {
+        font-size: 0.9em;
+        color: #666;
+        margin-bottom: 5px;
+      }
+
+      .info-value {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      .canvas-container {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        overflow: auto;
+        min-height: 500px;
+      }
+
+      #treeCanvas {
+        display: block;
+        margin: 0 auto;
+      }
+
+      .message {
+        text-align: center;
+        padding: 15px;
+        margin-top: 15px;
+        border-radius: 8px;
+        font-weight: 500;
+        display: none;
+      }
+
+      .message.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .message.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      footer {
+        text-align: center;
+        color: white;
+        margin-top: 30px;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+      }
+
+      footer p {
+        margin: 5px 0;
+        font-size: 1.1em;
+      }
+
+      .legend {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 15px;
+        flex-wrap: wrap;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .legend-circle {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid #333;
+      }
+
+      .legend-circle.balanced {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .legend-circle.unbalanced {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      }
+
+      .legend-circle.animated {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>AVL Tree Visualizer</h1>
+        <p class="subtitle">
+          Interactive Self-Balancing Binary Search Tree with Animations
+        </p>
+        <div class="project-info">
+          <p><strong>Project Made By: Sunil Lamichhane</strong></p>
+          <p><strong>Roll No: 080BCT090</strong></p>
+          <p>
+            Submitted To: <br />Department of Electronics and Computer
+            Engineering, Pulchowk Campus
+          </p>
+        </div>
+      </header>
+
+      <div class="controls">
+        <div class="control-group">
+          <input
+            type="number"
+            id="nodeValue"
+            placeholder="Enter value"
+            min="1"
+            max="999"
+          />
+          <button class="btn-insert" onclick="insertNode()" id="insertBtn">
+            Insert Node
+          </button>
+          <button class="btn-delete" onclick="deleteNode()" id="deleteBtn">
+            Delete Node
+          </button>
+          <button class="btn-clear" onclick="clearTree()" id="clearBtn">
+            Clear Tree
+          </button>
+          <button class="btn-random" onclick="generateRandom()" id="randomBtn">
+            Random Tree
+          </button>
+        </div>
+
+        <div class="info-panel">
+          <div class="info-box">
+            <div class="info-label">Total Nodes</div>
+            <div class="info-value" id="nodeCount">0</div>
+          </div>
+          <div class="info-box">
+            <div class="info-label">Tree Height</div>
+            <div class="info-value" id="treeHeight">0</div>
+          </div>
+          <div class="info-box">
+            <div class="info-label">Balance Factor</div>
+            <div class="info-value" id="balanceFactor">0</div>
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-circle balanced"></div>
+            <span>Balanced Node</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-circle unbalanced"></div>
+            <span>Rotating Node</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-circle animated"></div>
+            <span>Inserting Node</span>
+          </div>
+        </div>
+
+        <div class="message" id="message"></div>
+      </div>
+
+      <div class="canvas-container">
+        <canvas id="treeCanvas"></canvas>
+      </div>
+
+      <footer>
+        <p><strong>Project Made By Sunil Lamichhane</strong></p>
+        <p><strong>Roll No: 080BCT090</strong></p>
+        <p>Submitted to Department of Electronics and Computer Engineering</p>
+        <p>Pulchowk Campus</p>
+      </footer>
+    </div>
+
+    <script>
+      class AVLNode {
+        constructor(value) {
+          this.value = value;
+          this.left = null;
+          this.right = null;
+          this.height = 1;
+        }
+      }
+
+      class AVLTree {
+        constructor() {
+          this.root = null;
+        }
+
+        height(node) {
+          return node ? node.height : 0;
+        }
+
+        balanceFactor(node) {
+          return node ? this.height(node.left) - this.height(node.right) : 0;
+        }
+
+        updateHeight(node) {
+          if (node) {
+            node.height =
+              Math.max(this.height(node.left), this.height(node.right)) + 1;
+          }
+        }
+
+        rotateRight(y) {
+          let x = y.left;
+          let T2 = x.right;
+
+          x.right = y;
+          y.left = T2;
+
+          this.updateHeight(y);
+          this.updateHeight(x);
+
+          return x;
+        }
+
+        rotateLeft(x) {
+          let y = x.right;
+          let T2 = y.left;
+
+          y.left = x;
+          x.right = T2;
+
+          this.updateHeight(x);
+          this.updateHeight(y);
+
+          return y;
+        }
+
+        insert(node, value) {
+          if (!node) return new AVLNode(value);
+
+          if (value < node.value) {
+            node.left = this.insert(node.left, value);
+          } else if (value > node.value) {
+            node.right = this.insert(node.right, value);
+          } else {
+            return node;
+          }
+
+          this.updateHeight(node);
+
+          let balance = this.balanceFactor(node);
+
+          if (balance > 1 && value < node.left.value) {
+            return this.rotateRight(node);
+          }
+
+          if (balance < -1 && value > node.right.value) {
+            return this.rotateLeft(node);
+          }
+
+          if (balance > 1 && value > node.left.value) {
+            node.left = this.rotateLeft(node.left);
+            return this.rotateRight(node);
+          }
+
+          if (balance < -1 && value < node.right.value) {
+            node.right = this.rotateRight(node.right);
+            return this.rotateLeft(node);
+          }
+
+          return node;
+        }
+
+        minValueNode(node) {
+          let current = node;
+          while (current.left) {
+            current = current.left;
+          }
+          return current;
+        }
+
+        delete(node, value) {
+          if (!node) return node;
+
+          if (value < node.value) {
+            node.left = this.delete(node.left, value);
+          } else if (value > node.value) {
+            node.right = this.delete(node.right, value);
+          } else {
+            if (!node.left || !node.right) {
+              node = node.left || node.right;
+            } else {
+              let temp = this.minValueNode(node.right);
+              node.value = temp.value;
+              node.right = this.delete(node.right, temp.value);
+            }
+          }
+
+          if (!node) return node;
+
+          this.updateHeight(node);
+
+          let balance = this.balanceFactor(node);
+
+          if (balance > 1 && this.balanceFactor(node.left) >= 0) {
+            return this.rotateRight(node);
+          }
+
+          if (balance > 1 && this.balanceFactor(node.left) < 0) {
+            node.left = this.rotateLeft(node.left);
+            return this.rotateRight(node);
+          }
+
+          if (balance < -1 && this.balanceFactor(node.right) <= 0) {
+            return this.rotateLeft(node);
+          }
+
+          if (balance < -1 && this.balanceFactor(node.right) > 0) {
+            node.right = this.rotateRight(node.right);
+            return this.rotateLeft(node);
+          }
+
+          return node;
+        }
+
+        countNodes(node) {
+          if (!node) return 0;
+          return 1 + this.countNodes(node.left) + this.countNodes(node.right);
+        }
+      }
+
+      let avlTree = new AVLTree();
+      let canvas = document.getElementById("treeCanvas");
+      let ctx = canvas.getContext("2d");
+
+      // Animation variables
+      let isAnimating = false;
+      let animationSpeed = 800;
+      let rotationSpeed = 1500;
+      let animationState = {
+        currentNode: null,
+        currentX: 0,
+        currentY: 0,
+        value: null,
+        comparing: false,
+        comparedNode: null,
+      };
+
+      let rotatingNodes = new Map(); // Maps node values to their animation state
+
+      function resizeCanvas() {
+        canvas.width = Math.max(800, canvas.parentElement.clientWidth - 40);
+        canvas.height = 500;
+        drawTree();
+      }
+
+      function drawTree() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (avlTree.root) {
+          drawNode(avlTree.root, canvas.width / 2, 40, canvas.width / 4);
+        }
+
+        // Draw animation if active
+        if (animationState.currentNode) {
+          drawAnimatedNode();
+        }
+
+        updateInfo();
+      }
+
+      function drawAnimatedNode() {
+        let x = animationState.currentX;
+        let y = animationState.currentY;
+
+        // Draw the moving node with a glow effect
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = "#43e97b";
+
+        ctx.beginPath();
+        ctx.arc(x, y, 25, 0, 2 * Math.PI);
+
+        let gradient = ctx.createLinearGradient(x - 25, y - 25, x + 25, y + 25);
+        gradient.addColorStop(0, "#43e97b");
+        gradient.addColorStop(1, "#38f9d7");
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.fillStyle = "white";
+        ctx.font = "bold 16px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(animationState.value, x, y);
+
+        // Draw comparison arrow if comparing
+        if (animationState.comparing && animationState.comparedNode) {
+          ctx.fillStyle = "#333";
+          ctx.font = "bold 14px Arial";
+
+          if (animationState.value < animationState.comparedNode.value) {
+            ctx.fillText(
+              `${animationState.value} < ${animationState.comparedNode.value}`,
+              x,
+              y - 50
+            );
+            ctx.fillStyle = "#43e97b";
+            ctx.fillText("Go Left ←", x, y - 35);
+          } else if (animationState.value > animationState.comparedNode.value) {
+            ctx.fillText(
+              `${animationState.value} > ${animationState.comparedNode.value}`,
+              x,
+              y - 50
+            );
+            ctx.fillStyle = "#43e97b";
+            ctx.fillText("Go Right →", x, y - 35);
+          }
+        }
+      }
+
+      function drawNode(node, x, y, offset, rotatingValue = null) {
+        if (!node) return;
+
+        // Check if this node is rotating
+        let nodeRotState = rotatingNodes.get(node.value);
+        let actualX = x;
+        let actualY = y;
+
+        if (nodeRotState) {
+          actualX = nodeRotState.currentX;
+          actualY = nodeRotState.currentY;
+        }
+
+        if (node.left) {
+          let leftX = x - offset;
+          let leftY = y + 80;
+          let leftRotState = rotatingNodes.get(node.left.value);
+
+          if (leftRotState) {
+            leftX = leftRotState.currentX;
+            leftY = leftRotState.currentY;
+          }
+
+          ctx.beginPath();
+          ctx.strokeStyle = "#667eea";
+          ctx.lineWidth = 2;
+          ctx.moveTo(actualX, actualY);
+          ctx.lineTo(leftX, leftY);
+          ctx.stroke();
+          drawNode(node.left, x - offset, y + 80, offset / 2);
+        }
+
+        if (node.right) {
+          let rightX = x + offset;
+          let rightY = y + 80;
+          let rightRotState = rotatingNodes.get(node.right.value);
+
+          if (rightRotState) {
+            rightX = rightRotState.currentX;
+            rightY = rightRotState.currentY;
+          }
+
+          ctx.beginPath();
+          ctx.strokeStyle = "#667eea";
+          ctx.lineWidth = 2;
+          ctx.moveTo(actualX, actualY);
+          ctx.lineTo(rightX, rightY);
+          ctx.stroke();
+          drawNode(node.right, x + offset, y + 80, offset / 2);
+        }
+
+        ctx.beginPath();
+        ctx.arc(actualX, actualY, 25, 0, 2 * Math.PI);
+
+        // Use pink for rotating nodes
+        if (nodeRotState) {
+          let gradient = ctx.createLinearGradient(
+            actualX - 25,
+            actualY - 25,
+            actualX + 25,
+            actualY + 25
+          );
+          gradient.addColorStop(0, "#f093fb");
+          gradient.addColorStop(1, "#f5576c");
+          ctx.fillStyle = gradient;
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = "#f5576c";
+        } else {
+          let gradient = ctx.createLinearGradient(
+            actualX - 25,
+            actualY - 25,
+            actualX + 25,
+            actualY + 25
+          );
+          gradient.addColorStop(0, "#667eea");
+          gradient.addColorStop(1, "#764ba2");
+          ctx.fillStyle = gradient;
+        }
+
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = "white";
+        ctx.font = "bold 16px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(node.value, actualX, actualY);
+
+        let bf = avlTree.balanceFactor(node);
+        ctx.fillStyle = "#333";
+        ctx.font = "10px Arial";
+        ctx.fillText(`BF:${bf}`, actualX, actualY + 40);
+      }
+
+      function animateStep(
+        fromX,
+        fromY,
+        toX,
+        toY,
+        value,
+        comparedNode = null,
+        callback
+      ) {
+        animationState.currentX = fromX;
+        animationState.currentY = fromY;
+        animationState.value = value;
+        animationState.comparing = comparedNode !== null;
+        animationState.comparedNode = comparedNode;
+        animationState.currentNode = true;
+
+        let startTime = Date.now();
+
+        function animate() {
+          let elapsed = Date.now() - startTime;
+          let progress = Math.min(elapsed / animationSpeed, 1);
+
+          // Easing function for smooth animation
+          let easeProgress =
+            progress < 0.5
+              ? 2 * progress * progress
+              : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+          animationState.currentX = fromX + (toX - fromX) * easeProgress;
+          animationState.currentY = fromY + (toY - fromY) * easeProgress;
+
+          drawTree();
+
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            animationState.currentNode = null;
+            animationState.comparing = false;
+            drawTree();
+            if (callback) callback();
+          }
+        }
+
+        animate();
+      }
+
+      function getNodePositions(node, x, y, offset, positions = new Map()) {
+        if (!node) return positions;
+
+        positions.set(node.value, { x, y });
+
+        if (node.left) {
+          getNodePositions(
+            node.left,
+            x - offset,
+            y + 80,
+            offset / 2,
+            positions
+          );
+        }
+        if (node.right) {
+          getNodePositions(
+            node.right,
+            x + offset,
+            y + 80,
+            offset / 2,
+            positions
+          );
+        }
+
+        return positions;
+      }
+
+      async function animateRotation(
+        beforePositions,
+        afterPositions,
+        rotationType
+      ) {
+        return new Promise((resolve) => {
+          rotatingNodes.clear();
+
+          // Set up animation state for each node
+          afterPositions.forEach((afterPos, value) => {
+            let beforePos = beforePositions.get(value);
+            if (beforePos) {
+              rotatingNodes.set(value, {
+                startX: beforePos.x,
+                startY: beforePos.y,
+                endX: afterPos.x,
+                endY: afterPos.y,
+                currentX: beforePos.x,
+                currentY: beforePos.y,
+              });
+            }
+          });
+
+          // Show rotation type message
+          let rotationText = "";
+          if (rotationType === "LL")
+            rotationText = "↺ Right Rotation (LL Case)";
+          else if (rotationType === "RR")
+            rotationText = "↻ Left Rotation (RR Case)";
+          else if (rotationType === "LR")
+            rotationText = "↻↺ Left-Right Rotation (LR Case)";
+          else if (rotationType === "RL")
+            rotationText = "↺↻ Right-Left Rotation (RL Case)";
+
+          showMessage(rotationText, "success");
+
+          let startTime = Date.now();
+
+          function animate() {
+            let elapsed = Date.now() - startTime;
+            let progress = Math.min(elapsed / rotationSpeed, 1);
+
+            // Easing
+            let easeProgress =
+              progress < 0.5
+                ? 2 * progress * progress
+                : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+            // Update all rotating nodes
+            rotatingNodes.forEach((state, value) => {
+              state.currentX =
+                state.startX + (state.endX - state.startX) * easeProgress;
+              state.currentY =
+                state.startY + (state.endY - state.startY) * easeProgress;
+
+              // Add arc effect
+              let arcHeight = 40;
+              state.currentY -= Math.sin(progress * Math.PI) * arcHeight;
+            });
+
+            drawTree();
+
+            if (progress < 1) {
+              requestAnimationFrame(animate);
+            } else {
+              rotatingNodes.clear();
+              drawTree();
+              resolve();
+            }
+          }
+
+          animate();
+        });
+      }
+
+      function getInsertionPath(value) {
+        let path = [];
+        let node = avlTree.root;
+        let x = canvas.width / 2;
+        let y = 40;
+        let offset = canvas.width / 4;
+
+        if (!node) {
+          path.push({ x, y, node: null, value });
+          return path;
+        }
+
+        while (node) {
+          path.push({ x, y, node: { value: node.value }, value });
+
+          if (value < node.value) {
+            x = x - offset;
+            y = y + 80;
+            offset = offset / 2;
+            if (!node.left) {
+              path.push({ x, y, node: null, value });
+              break;
+            }
+            node = node.left;
+          } else if (value > node.value) {
+            x = x + offset;
+            y = y + 80;
+            offset = offset / 2;
+            if (!node.right) {
+              path.push({ x, y, node: null, value });
+              break;
+            }
+            node = node.right;
+          } else {
+            break;
+          }
+        }
+
+        return path;
+      }
+
+      function cloneTree(node) {
+        if (!node) return null;
+        let cloned = new AVLNode(node.value);
+        cloned.height = node.height;
+        cloned.left = cloneTree(node.left);
+        cloned.right = cloneTree(node.right);
+        return cloned;
+      }
+
+      function detectRotationType(value, beforeRoot) {
+        // Determine rotation type based on insertion path
+        let node = beforeRoot;
+        let path = [];
+
+        while (node) {
+          path.push(node.value);
+          if (value < node.value) {
+            node = node.left;
+          } else if (value > node.value) {
+            node = node.right;
+          } else {
+            break;
+          }
+        }
+
+        // Check imbalance
+        node = beforeRoot;
+        let balance = avlTree.balanceFactor(node);
+
+        if (balance > 1) {
+          if (value < node.left.value) return "LL";
+          else return "LR";
+        }
+        if (balance < -1) {
+          if (value > node.right.value) return "RR";
+          else return "RL";
+        }
+
+        return null;
+      }
+
+      async function animatedInsert(value) {
+        if (isAnimating) {
+          showMessage("Please wait for current animation to complete", "error");
+          return;
+        }
+
+        isAnimating = true;
+        disableButtons(true);
+
+        let path = getInsertionPath(value);
+        let startX = canvas.width / 2;
+        let startY = -30;
+
+        // Animate insertion path
+        for (let i = 0; i < path.length; i++) {
+          let step = path[i];
+          let fromX = i === 0 ? startX : path[i - 1].x;
+          let fromY = i === 0 ? startY : path[i - 1].y;
+
+          await new Promise((resolve) => {
+            animateStep(
+              fromX,
+              fromY,
+              step.x,
+              step.y,
+              value,
+              step.node,
+              resolve
+            );
+          });
+
+          if (i < path.length - 1) {
+            await new Promise((resolve) => setTimeout(resolve, 400));
+          }
+        }
+
+        // Get positions before insertion
+        let beforePositions = getNodePositions(
+          avlTree.root,
+          canvas.width / 2,
+          40,
+          canvas.width / 4
+        );
+        let beforeRoot = cloneTree(avlTree.root);
+
+        // Perform insertion
+        avlTree.root = avlTree.insert(avlTree.root, value);
+
+        // Get positions after insertion
+        let afterPositions = getNodePositions(
+          avlTree.root,
+          canvas.width / 2,
+          40,
+          canvas.width / 4
+        );
+
+        // Check if rotation occurred
+        let needsRotation = false;
+        beforePositions.forEach((pos, val) => {
+          let afterPos = afterPositions.get(val);
+          if (
+            afterPos &&
+            (Math.abs(pos.x - afterPos.x) > 5 ||
+              Math.abs(pos.y - afterPos.y) > 5)
+          ) {
+            needsRotation = true;
+          }
+        });
+
+        if (needsRotation && beforeRoot) {
+          await new Promise((resolve) => setTimeout(resolve, 300));
+          let rotationType = detectRotationType(value, beforeRoot);
+          await animateRotation(beforePositions, afterPositions, rotationType);
+        }
+
+        isAnimating = false;
+        disableButtons(false);
+        drawTree();
+
+        if (!needsRotation) {
+          showMessage(`Node ${value} inserted successfully`, "success");
+        }
+      }
+
+      function searchValue(node, value) {
+        if (!node) return false;
+        if (node.value === value) return true;
+        if (value < node.value) return searchValue(node.left, value);
+        return searchValue(node.right, value);
+      }
+
+      function insertNode() {
+        let value = parseInt(document.getElementById("nodeValue").value);
+        if (isNaN(value)) {
+          showMessage("Please enter a valid number", "error");
+          return;
+        }
+
+        if (searchValue(avlTree.root, value)) {
+          showMessage(`Value ${value} already exists in the tree`, "error");
+          return;
+        }
+
+        document.getElementById("nodeValue").value = "";
+        animatedInsert(value);
+      }
+
+      function deleteNode() {
+        let value = parseInt(document.getElementById("nodeValue").value);
+        if (isNaN(value)) {
+          showMessage("Please enter a valid number", "error");
+          return;
+        }
+        avlTree.root = avlTree.delete(avlTree.root, value);
+        document.getElementById("nodeValue").value = "";
+        drawTree();
+        showMessage(`Node ${value} deleted successfully`, "success");
+      }
+
+      function clearTree() {
+        avlTree.root = null;
+        drawTree();
+        showMessage("Tree cleared", "success");
+      }
+
+      function generateRandom() {
+        if (isAnimating) {
+          showMessage("Please wait for current animation to complete", "error");
+          return;
+        }
+
+        clearTree();
+        let count = 7 + Math.floor(Math.random() * 6);
+        let values = new Set();
+
+        while (values.size < count) {
+          values.add(Math.floor(Math.random() * 100) + 1);
+        }
+
+        values.forEach((val) => {
+          avlTree.root = avlTree.insert(avlTree.root, val);
+        });
+
+        drawTree();
+        showMessage(`Generated random tree with ${count} nodes`, "success");
+      }
+
+      function updateInfo() {
+        document.getElementById("nodeCount").textContent = avlTree.countNodes(
+          avlTree.root
+        );
+        document.getElementById("treeHeight").textContent = avlTree.height(
+          avlTree.root
+        );
+        document.getElementById("balanceFactor").textContent = avlTree.root
+          ? avlTree.balanceFactor(avlTree.root)
+          : 0;
+      }
+
+      function showMessage(text, type) {
+        let msg = document.getElementById("message");
+        msg.textContent = text;
+        msg.className = `message ${type}`;
+        msg.style.display = "block";
+        setTimeout(() => {
+          msg.style.display = "none";
+        }, 3000);
+      }
+
+      function disableButtons(disabled) {
+        document.getElementById("insertBtn").disabled = disabled;
+        document.getElementById("deleteBtn").disabled = disabled;
+        document.getElementById("clearBtn").disabled = disabled;
+        document.getElementById("randomBtn").disabled = disabled;
+      }
+
+      document
+        .getElementById("nodeValue")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            insertNode();
+          }
+        });
+
+      window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
+
+      // Start with an empty tree
+      drawTree();
+    </script>
+  </body>
+</html>
